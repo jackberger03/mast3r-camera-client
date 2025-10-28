@@ -153,7 +153,10 @@ If your MASt3R-SLAM server is on Tailscale:
 ### Camera Not Detected
 
 ```bash
-# Check camera connection
+# Check camera connection (newer command)
+rpicam-hello
+
+# Or use legacy command
 libcamera-hello
 
 # If that doesn't work, enable camera:
@@ -205,7 +208,10 @@ If you prefer manual installation:
 ```bash
 # 1. Install system packages
 sudo apt update
-sudo apt install -y python3 python3-pip python3-picamera2 python3-pil libcamera-apps
+sudo apt install -y python3 python3-pip python3-picamera2 python3-pil
+
+# Install camera apps (use rpicam-apps on newer OS, libcamera-apps on older)
+sudo apt install -y rpicam-apps || sudo apt install -y libcamera-apps
 
 # 2. Install Python packages
 pip3 install --break-system-packages requests Pillow

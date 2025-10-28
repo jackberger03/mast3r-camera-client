@@ -47,8 +47,16 @@ apt install -y \
     python3 \
     python3-pip \
     python3-picamera2 \
-    python3-pil \
-    libcamera-apps
+    python3-pil
+
+# Install camera apps (try newer rpicam-apps first, fall back to libcamera-apps)
+if apt-cache show rpicam-apps >/dev/null 2>&1; then
+    echo "Installing rpicam-apps (newer)..."
+    apt install -y rpicam-apps
+else
+    echo "Installing libcamera-apps (legacy)..."
+    apt install -y libcamera-apps
+fi
 
 # Install Python dependencies
 echo -e "${YELLOW}[3/5] Installing Python dependencies...${NC}"
