@@ -61,7 +61,7 @@ sudo nano /etc/systemd/system/mast3r-camera.service
 Modify the `ExecStart` line:
 
 ```ini
-ExecStart=/usr/bin/python3 /home/pi/mast3r-camera-client/camera_client.py --host YOUR_HOST --port YOUR_PORT --fps 1
+ExecStart=/usr/bin/python3 /home/jack/mast3r-camera-client/camera_client.py --host YOUR_HOST --port YOUR_PORT --fps 1
 ```
 
 Then reload and restart:
@@ -186,7 +186,7 @@ sudo journalctl -u mast3r-camera -n 50
 # Check service status
 sudo systemctl status mast3r-camera
 
-# Test manually
+# Test manually (adjust path to your username)
 cd ~/mast3r-camera-client
 python3 camera_client.py --verbose
 ```

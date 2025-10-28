@@ -83,9 +83,9 @@ echo -e "${YELLOW}[5/5] Configuring systemd service...${NC}"
 SERVICE_FILE="/etc/systemd/system/mast3r-camera.service"
 cp "$PROJECT_DIR/mast3r-camera.service" "$SERVICE_FILE"
 
-# Replace pi user with actual user
-sed -i "s|User=pi|User=$ACTUAL_USER|g" "$SERVICE_FILE"
-sed -i "s|/home/pi|$USER_HOME|g" "$SERVICE_FILE"
+# Replace jack user with actual user if different
+sed -i "s|User=jack|User=$ACTUAL_USER|g" "$SERVICE_FILE"
+sed -i "s|/home/jack|$USER_HOME|g" "$SERVICE_FILE"
 
 # Reload systemd
 systemctl daemon-reload
