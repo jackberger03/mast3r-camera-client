@@ -46,8 +46,7 @@ echo -e "${YELLOW}[2/5] Installing system dependencies...${NC}"
 apt install -y \
     python3 \
     python3-pip \
-    python3-picamera2 \
-    python3-pil
+    python3-picamera2
 
 # Install camera apps (try newer rpicam-apps first, fall back to libcamera-apps)
 if apt-cache show rpicam-apps >/dev/null 2>&1; then
@@ -60,7 +59,7 @@ fi
 
 # Install Python dependencies
 echo -e "${YELLOW}[3/5] Installing Python dependencies...${NC}"
-pip3 install --break-system-packages requests Pillow
+pip3 install --break-system-packages requests
 
 # Copy project files to user's home directory if not already there
 PROJECT_DIR="$USER_HOME/mast3r-camera-client"

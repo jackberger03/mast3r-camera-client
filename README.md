@@ -4,8 +4,8 @@ Camera client for Raspberry Pi Camera Module 3 that captures images and streams 
 
 ## Features
 
-- 📷 **Raspberry Pi Camera Module 3 support**
-- 🔄 **Automatic PNG conversion**
+- 📷 **Raspberry Pi Camera Module 2/3 support**
+- 🚀 **Fast JPEG capture** (PNG conversion done server-side)
 - 📡 **HTTP upload to MASt3R-SLAM server**
 - ⚙️ **Configurable capture rate** (default: 1 FPS)
 - 🚀 **Systemd service** for automatic startup
@@ -208,13 +208,13 @@ If you prefer manual installation:
 ```bash
 # 1. Install system packages
 sudo apt update
-sudo apt install -y python3 python3-pip python3-picamera2 python3-pil
+sudo apt install -y python3 python3-pip python3-picamera2
 
 # Install camera apps (use rpicam-apps on newer OS, libcamera-apps on older)
 sudo apt install -y rpicam-apps || sudo apt install -y libcamera-apps
 
 # 2. Install Python packages
-pip3 install --break-system-packages requests Pillow
+pip3 install --break-system-packages requests
 
 # 3. Make script executable
 chmod +x camera_client.py
@@ -235,7 +235,6 @@ sudo systemctl start mast3r-camera
 
 ```python
 from picamera2 import Picamera2
-from PIL import Image
 import io
 
 # Initialize camera
@@ -244,10 +243,13 @@ config = camera.create_still_configuration()
 camera.configure(config)
 camera.start()
 
-# Capture
-image_array = camera.capture_array()
-img = Image.fromarray(image_array)
-img.save("test.png")
+# Capture as JPEG
+jpeg_buffer = io.BytesIO()
+camera.capture_file(jpeg_buffer, format='jpeg')
+
+# Save to file
+with open('test.jpg', 'wb') as f:
+    f.write(jpeg_buffer.getvalue())
 
 camera.stop()
 ```
@@ -304,10 +306,12 @@ python3 camera_client.py --verbose --fps 2
 ## Performance Notes
 
 - **1 FPS** is recommended for stable real-time reconstruction
-- **Camera Module 3** captures at 4608x2592 resolution
-- PNG conversion takes ~100-200ms
-- Upload time depends on network speed
-- Total loop time: ~300-500ms per frame at 1 FPS
+- **Camera** captures at full resolution (3280x2464 for IMX219, 4608x2592 for IMX477)
+- **JPEG capture**: ~50-100ms
+- **JPEG file size**: ~1-2MB (vs 10-20MB for PNG)
+- **Upload time**: ~1-3s depending on network
+- **Server** handles PNG conversion (offloads Pi)
+- Total loop time: ~2-4s per frame at 1 FPS
 
 ## Server Setup
 

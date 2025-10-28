@@ -9,4 +9,3 @@
 #   pip3 install --break-system-packages -r requirements.txt (on Raspberry Pi OS Bookworm+)
 
 requests>=2.31.0
-Pillow>=10.0.0

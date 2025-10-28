@@ -27,12 +27,6 @@ except ImportError:
     sys.exit(1)
 
 try:
-    from PIL import Image
-except ImportError:
-    print("ERROR: Pillow not found. Install with: pip install Pillow")
-    sys.exit(1)
-
-try:
     import requests
 except ImportError:
     print("ERROR: requests not found. Install with: pip install requests")
@@ -115,46 +109,36 @@ class CameraClient:
 
     def capture_and_convert(self) -> tuple[bytes, str]:
         """
-        Capture image from camera and convert to PNG.
+        Capture image from camera as JPEG (server will convert to PNG).
 
         Returns:
-            Tuple of (png_bytes, filename)
+            Tuple of (jpeg_bytes, filename)
         """
-        # Capture image
-        image_array = self.camera.capture_array()
-
-        # Convert to PIL Image
-        img = Image.fromarray(image_array)
-
-        # Convert to RGB if needed
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
-
-        # Convert to PNG bytes
-        png_buffer = io.BytesIO()
-        img.save(png_buffer, format='PNG')
-        png_bytes = png_buffer.getvalue()
+        # Capture image directly as JPEG
+        jpeg_buffer = io.BytesIO()
+        self.camera.capture_file(jpeg_buffer, format='jpeg')
+        jpeg_bytes = jpeg_buffer.getvalue()
 
         # Generate filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-        filename = f"raspi_cam_{timestamp}.png"
+        filename = f"raspi_cam_{timestamp}.jpg"
 
-        return png_bytes, filename
+        return jpeg_bytes, filename
 
-    def upload_image(self, png_bytes: bytes, filename: str) -> bool:
+    def upload_image(self, jpeg_bytes: bytes, filename: str) -> bool:
         """
-        Upload PNG image to MASt3R-SLAM server.
+        Upload JPEG image to MASt3R-SLAM server.
 
         Args:
-            png_bytes: PNG image as bytes
+            jpeg_bytes: JPEG image as bytes
             filename: Filename for the image
 
         Returns:
             True if upload successful, False otherwise
         """
         try:
-            files = {'file': (filename, png_bytes, 'image/png')}
-            response = requests.post(self.upload_url, files=files, timeout=10)
+            files = {'file': (filename, jpeg_bytes, 'image/jpeg')}
+            response = requests.post(self.upload_url, files=files, timeout=30)
 
             if response.status_code == 200:
                 data = response.json()
@@ -169,11 +153,11 @@ class CameraClient:
             logger.error(f"✗ Upload failed: {e}")
             return False
 
-    def save_local_copy(self, png_bytes: bytes, filename: str):
+    def save_local_copy(self, jpeg_bytes: bytes, filename: str):
         """Save local copy of image."""
         save_path = self.save_dir / filename
         with open(save_path, 'wb') as f:
-            f.write(png_bytes)
+            f.write(jpeg_bytes)
         logger.debug(f"Saved local copy: {save_path}")
 
     def run(self):
@@ -191,16 +175,16 @@ class CameraClient:
                 start_time = time.time()
 
                 try:
-                    # Capture and convert
-                    png_bytes, filename = self.capture_and_convert()
+                    # Capture as JPEG
+                    jpeg_bytes, filename = self.capture_and_convert()
                     frame_count += 1
 
                     # Save local copy if enabled
                     if self.save_local:
-                        self.save_local_copy(png_bytes, filename)
+                        self.save_local_copy(jpeg_bytes, filename)
 
                     # Upload to server
-                    if self.upload_image(png_bytes, filename):
+                    if self.upload_image(jpeg_bytes, filename):
                         success_count += 1
                     else:
                         fail_count += 1
