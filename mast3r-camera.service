@@ -5,9 +5,9 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=pi
-WorkingDirectory=/home/pi/mast3r-camera-client
-ExecStart=/usr/bin/python3 /home/pi/mast3r-camera-client/camera_client.py --host linux-2 --port 5050 --fps 1
+User=jack
+WorkingDirectory=/home/jack/mast3r-camera-client
+ExecStart=/usr/bin/python3 /home/jack/mast3r-camera-client/camera_client.py --host linux-2 --port 5050 --fps 1
 Restart=always
 RestartSec=10
 StandardOutput=journal
